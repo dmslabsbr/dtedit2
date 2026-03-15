@@ -1,132 +1,101 @@
-## Editable DataTables for shiny apps.
+# DTedit2
 
-**New Author:** dmslabsbr
-**Email:** suporte@neoage.com.br
+**Editable DataTables for Shiny apps** — create, edit, and delete rows in DT tables from your R/Shiny UI.
 
+Read in Portuguese: [README.pt-BR.md](README.pt-BR.md)
 
-**Orginial Author:** Jason Bryer, Ph.D.
-**Email:** jason@bryer.org
+---
 
+[![License: LGPL](https://img.shields.io/badge/License-LGPL-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+[![R](https://img.shields.io/badge/R-%3E%3D%203.3.2-276DC3?logo=R)](https://www.r-project.org/)
+[![Version](https://img.shields.io/badge/version-0.1.28-blue)](https://github.com/dmslabsbr/dtedit2)
+[![Lines of code](https://img.shields.io/tokei/lines/github/dmslabsbr/dtedit2)](https://github.com/dmslabsbr/dtedit2)
+[![Last commit](https://img.shields.io/github/last-commit/dmslabsbr/dtedit2)](https://github.com/dmslabsbr/dtedit2)
 
-#### New version by DMS
-Use the `devtools` package to install the development version of `DTedit`:
+---
 
+## Credits
 
-<a href="https://www.buymeacoffee.com/dmslabs"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a pizza&emoji=🍕&slug=dmslabs&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff"></a>
+This project is a **fork** with extensions and fixes.
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9S3JYKPHR3XQ6)
-[![Donate with Bitcoin](https://en.cryptobadges.io/badge/micro/1MAC9RBnPYT9ua1zsgvhwfRoASTBKr4QL8)](https://www.blockchain.com/btc/address/1MAC9RBnPYT9ua1zsgvhwfRoASTBKr4QL8)
+| Role | Author | Repository / Contact |
+|------|--------|----------------------|
+| **Original author** | Jason Bryer, Ph.D. | [jbryer/DTedit](https://github.com/jbryer/DTedit) — jason@bryer.org |
+| **External code base** | DavidPatShuiFong | [DavidPatShuiFong/DTedit](https://github.com/DavidPatShuiFong/DTedit) |
+| **Fork maintainer** | dmslabsbr (Daniel) | [dmslabsbr/dtedit2](https://github.com/dmslabsbr/dtedit2) — suporte@neoage.com.br |
 
-<img alt="Lines of code" src="https://img.shields.io/tokei/lines/github/dmslabsbr/dtedit2">
-<img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/dmslabsbr/dtedit2">
+---
 
+## Description
 
+**DTedit2** extends the [DT](https://rstudio.github.io/DT/) DataTable so users can **add**, **edit**, and **delete** rows directly in the table. Column types (numeric, factor, date, etc.) are mapped to appropriate Shiny inputs. You plug in your own callbacks to persist data (e.g. database or in-memory).
 
-#### External update based on code from DavidPatShuiFong/DTedit
+---
+
+## Install
+
+From R:
 
 ```r
 devtools::install_github('dmslabsbr/dtedit2')
 ```
 
-For a specific branch version, use:
+Specific branch (e.g. tag):
+
 ```r
-devtools::install_github('dmslabsbr/dtedit2', ref='v0.22f')
+devtools::install_github('dmslabsbr/dtedit2', ref = 'v0.22f')
 ```
 
-The `dtedit_demo` will run a sample `shiny` app with to editable data tables.
+---
+
+## Quick start
+
+Run the demo app:
 
 ```r
 DTedit::dtedit_demo()
 ```
 
-![DTedit Screen Shot](inst/screens/dtedit_books_edit.png)
+Minimal template: [inst/template/app.R](inst/template/app.R).
 
-#### Getting Started with `DTedit`
+---
 
-You can download a simple shiny app using `DTedit` here: [inst/template/app.R](inst/template/app.R)
+## Usage in three steps
 
-There are three steps to using `DTedit` in your shiny application.
+1. **Define callbacks** for insert, update, and delete (e.g. updating a data frame or database).
+2. **Create the `dtedit` object** in your `server` with `thedata`, `edit.cols`, `view.cols`, and your callbacks.
+3. **Render in the UI** with `uiOutput('your_dtedit_name')`.
 
-1. Define callback function for inserting, updating, and deleting data.
-
-```r
-my.insert.callback <- function(data, row) {
-	mydata <- rbind(data, mydata)
-	return(mydata)
-}
-
-my.update.callback <- function(data, olddata, row) {
-	mydata[row,] <- data[1,]
-	return(mydata)
-}
-
-my.delete.callback <- function(data, row) {
-	mydata[row,] <- NULL
-	return(mydata)
-}
-```
-
-Typically these functions would interact with a database. As written here, the data would be lost between shiny sessions.
-
-2. Create the `dtedit` object within your `server` function. 
+Example (excerpt):
 
 ```r
 DTedit::dtedit(input, output,
-	   name = 'mycontacts',
-	   thedata = mydata,
-	   edit.cols = c('name', 'email', 'useR', 'notes'),
-	   edit.label.cols = c('Name', 'Email Address', 'Are they an R user?', 'Additional notes'),
-	   input.types = c(notes='textAreaInput'),
-	   view.cols = c('name', 'email', 'useR'),
-	   callback.update = my.update.callback,
-	   callback.insert = my.insert.callback,
-	   callback.delete = my.delete.callback)
+  name = 'mycontacts',
+  thedata = mydata,
+  edit.cols = c('name', 'email', 'useR', 'notes'),
+  edit.label.cols = c('Name', 'Email Address', 'Are they an R user?', 'Additional notes'),
+  view.cols = c('name', 'email', 'useR'),
+  callback.update = my.update.callback,
+  callback.insert = my.insert.callback,
+  callback.delete = my.delete.callback)
 ```
 
-The `input` and `output` are passed from the `server` function. The `name` parameter will define the name of the object available to the `uiOutput`. The `thedata` is a `data.frame` for the initial view of the data table. This can be an empty (i.e. no rows) `data.frame`. The structure of the `data.frame` will define the inputs (e.g. `factor`s will be drop down, `Date` will use `dateInput`, `numeric`s will use `numericInput`, etc.). There are many other parameters to custom the behavior of `dtedit`, see `?dtedit` for the full list.
+This fork adds options such as `view.label.cols`, `edit.require.cols`, `edit.require.label`, `date.format`, and customizable titles/labels for add/edit/delete. See `?dtedit` for the full list.
 
+---
 
-* DMS Version 0.1.0 *
-```r
-DTedit::dtedit(input, output,
-               name = 'uiEdTable',
-               thedata = tb_dadoss,
-               view.cols = names(tb_dadoss),
-               view.label.cols = c_v_colnames,
-               edit.cols = c_ed_cols,
-               edit.label.cols = c_ed_l_cols, 
-               edit.require.cols = c_ed_cols,
-               edit.require.label = 'The following fields are required: ',
-               date.format = 'dd-mm-yyyy',
-               input.types = c_ed_input_t,
-               title.delete = "Apagar",
-               title.delete.confirmation = 'Are you sure you want to delete this record?',
-               title.edit = "Editar",
-               title.add = "Novo Registro",
-               label.delete = "Apagar",
-               label.edit = "Editar", 
-               label.add = "Novo",
-               label.copy = "Copiar",
-               label.cancel = "Cancelar",
-               label.save = "Gravar",
-               callback.update = my.update.callback,
-               callback.insert = my.insert.callback,
-               callback.delete = my.delete.callback)
-```
+## Screenshot
 
-The new parameters are:
-- `view.label.cols` - character vector with the labels to use on the view;
-- `edit.require.cols` - character vector with the column names required the user must edit/add;
-- `edit.require.label` - the label of require message.
-- `date.format` - the default for data format inputs.
-- `title.delete.confirmation` - deletion confirmation message.
-- `label.delete` - the label of the delete button.
+![DTedit screenshot](inst/screens/dtedit_books_edit.png)
 
+---
 
-3. Use `uiOutput` in your UI to display the editable data table.
+## Support
 
-The `name` you will pass to `uiOutput` is the name you passed to the `dtedit` created on the server side.
+- [Buy me a pizza](https://www.buymeacoffee.com/dmslabs) · [PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9S3JYKPHR3XQ6)
 
-```r
-uiOutput('mycontacts')
-```
+---
+
+## License
+
+LGPL. See [DESCRIPTION](DESCRIPTION) and repository for details.
